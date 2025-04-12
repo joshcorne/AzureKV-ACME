@@ -1,0 +1,11 @@
+# Azure Key Vault
+VAULT_URL = "https://<KV_NAME>.vault.azure.net/"
+
+# ACME
+ACME_DIRECTORY_URL = "<ACME_DIRECTORY_URLZ"
+EAB_KID = "<KEY_ID>"
+EAB_HMAC_KEY = "<HMAC>"
+CREATED_KEY_SIZE = 2048
+
+# Contact Email
+CONTACT_EMAIL = "<EMAIL_ADDRESS>"
