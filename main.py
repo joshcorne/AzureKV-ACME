@@ -5,13 +5,20 @@ if __name__ == "__main__":
     account = client.register_account()
     print("Account details:", account)
 
-
-    #TODO: WIP
-    domains = []
+    domains = [
+        {
+            "country": "SE",
+            "state": "Stockholm",
+            "locality": "Stockholm",
+            "organization": "SJ AB",
+            "common_name": "example.com"
+        }
+    ]
     order, order_url = client.create_order(domains)
 
     challenges = client.get_challenges(order)
 
+    #TODO: WIP
     for authz in challenges:
         http_chal = next(c for c in authz["challenges"] if c["type"] == "http-01")
         chal_info = client.get_http_challenge_info(http_chal)

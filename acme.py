@@ -65,7 +65,7 @@ class AcmeClient:
         }
     
     def create_order(self, domains):
-        identifiers = [{"type": "dns", "value": d} for d in domains]
+        identifiers = [{"type": "dns", "value": d["common_name"]} for d in domains]
         payload = {"identifiers": identifiers}
         resp = self._post(self.dir['newOrder'], payload, use_kid=True)
 
@@ -119,13 +119,20 @@ class AcmeClient:
         private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
         self.csr_key = private_key
 
-        csr_builder = x509.CertificateSigningRequestBuilder().subject_name(
-            x509.Name([x509.NameAttribute(x509.NameOID.COMMON_NAME, domains[0])])
-        )
-        csr_builder = csr_builder.add_extension(
-            x509.SubjectAlternativeName([x509.DNSName(d) for d in domains]),
-            critical=False,
-        )
+        subject = x509.Name([
+            x509.NameAttribute(x509.NameOID.COUNTRY_NAME, domains[0]["country"]),
+            x509.NameAttribute(x509.NameOID.LOCALITY_NAME, domains[0]["locality"]),
+            x509.NameAttribute(x509.NameOID.STATE_OR_PROVINCE_NAME, domains[0]["state"]),
+            x509.NameAttribute(x509.NameOID.ORGANIZATION_NAME, domains[0]["organization"]),
+            x509.NameAttribute(x509.NameOID.ORGANIZATIONAL_UNIT_NAME, domains[0]["organizational_unit"]),
+            x509.NameAttribute(x509.NameOID.COMMON_NAME, domains[0]["common_name"])
+        ])
+
+        alt_names = x509.SubjectAlternativeName([x509.DNSName(d) for d in domains])
+
+        csr_builder = x509.CertificateSigningRequestBuilder()
+        csr_builder = csr_builder.subject_name(subject)
+        csr_builder = csr_builder.add_extension(alt_names, critical=False)
         csr = csr_builder.sign(private_key, hashes.SHA256())
 
         return csr.public_bytes(serialization.Encoding.DER)
